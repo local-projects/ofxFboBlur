@@ -23,7 +23,7 @@ public:
 		blurOverlayGain = 128;
 	}
 	
-	void setup(ofFbo::Settings s, bool additive, float scaleDownPercent = 1.0f){
+	void setup(ofFbo::Settings s, bool additive, float scaleDownPercent = 1.0f, ofFbo* sceneFbo = NULL){
 
 		scaleDown = scaleDownPercent;
 		backgroundColor = ofColor(0,0,0,0);
@@ -104,7 +104,13 @@ public:
 
 		ofLogLevel l = ofGetLogLevel();
 		ofSetLogLevel(OF_LOG_WARNING);
-		cleanImgFBO.allocate( s );
+
+		if (sceneFbo == NULL) {
+			cleanImgFBO = new ofFbo();
+			cleanImgFBO->allocate( s );
+		} else {
+			cleanImgFBO = sceneFbo;
+		}
 
 		s.width *= scaleDown;
 		s.height *= scaleDown;
@@ -116,22 +122,22 @@ public:
 	}
 
 	void beginDrawScene(){
-		cleanImgFBO.begin();
+		cleanImgFBO->begin();
 	}
 
 	void endDrawScene(){
-		cleanImgFBO.end();
+		cleanImgFBO->end();
 	}
 
 	void performBlur(){
-		blur(&cleanImgFBO, &blurOutputFBO, &blurTempFBO, &blurTempFBO2, blurPasses, blurOffset);
+		blur(cleanImgFBO, &blurOutputFBO, &blurTempFBO, &blurTempFBO2, blurPasses, blurOffset);
 	}
 
 	void drawSceneFBO(){
 #if (OF_VERSION_MINOR >= 8)
-		cleanImgFBO.getTextureReference().draw(0, 0, cleanImgFBO.getWidth(), cleanImgFBO.getHeight());
+		cleanImgFBO->getTextureReference().draw(0, 0, cleanImgFBO->getWidth(), cleanImgFBO->getHeight());
 #else
-		cleanImgFBO.getTextureReference().draw(0, cleanImgFBO.getHeight(), cleanImgFBO.getWidth(), -cleanImgFBO.getHeight());
+		cleanImgFBO->getTextureReference().draw(0, cleanImgFBO->getHeight(), cleanImgFBO->getWidth(), -cleanImgFBO->getHeight());
 #endif
 	}
 
@@ -156,7 +162,7 @@ public:
 	int numBlurOverlays;	
 	int blurOverlayGain;	//[0..255]
 
-	ofFbo &getSceneFbo(){return cleanImgFBO;};
+	ofFbo &getSceneFbo(){return *cleanImgFBO;};
 	ofFbo &getBlurredSceneFbo(){return blurOutputFBO;};
 
 private:
@@ -217,7 +223,7 @@ private:
 		}
 	}
 
-	ofFbo	cleanImgFBO;
+	ofFbo*	cleanImgFBO;
 	ofFbo	blurOutputFBO;
 	ofFbo	blurTempFBO;
 	ofFbo	blurTempFBO2;
