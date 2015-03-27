@@ -210,12 +210,14 @@ private:
 			}
 			//draw back into original fbo
 
+			ofSetColor(255);
 			output->begin();
 			ofClear(backgroundColor);
 			buffer2->draw(0, 0);
 			output->end();
 
 		}else{
+			ofSetColor(255);
 			output->begin();
 			ofClear(backgroundColor);
 			input->draw(0,0, buffer->getWidth(), buffer->getHeight());
