@@ -25,10 +25,11 @@ public:
 
 	void endDrawScene();
 	void performBlur();
-
+    void clear(); 
 
 	void drawSceneFBO();
 	void drawBlurFbo(bool useCurrentColor = false);
+    void drawBlurFbo( float x, float y, float w, float h );
 
 	//access directly please!
 	float blurOffset;
